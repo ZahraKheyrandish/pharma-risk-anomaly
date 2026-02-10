@@ -1,0 +1,28 @@
+# env
+.venv/
+venv/
+.env
+
+# OS
+.DS_Store
+
+# IDE
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+
+# Data / outputs (اگر نمی‌خوای داده‌ها برن روی گیت)
+data/raw/
+data/synth/
+data/processed/
+benchmarks/tabular/data/raw/
+benchmarks/tabular/data/csv/
+benchmarks/tabular/reports/pr_curves/
+benchmarks/tabular/reports/*.png
+
+# Reports (اگر گزارش‌ها رو جدا می‌خوای مدیریت کنی)
+*.docx
+*.pdf
+
