@@ -1,19 +1,19 @@
-import os, sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
-
 import pandas as pd
 import streamlit as st
 
 from src.risk.risk_engine import compute_supplier_kpis, risk_score_supplier
 from src.simulation.shock import apply_supplier_shock
 
-DATA_PATH = "data/processed/orders_scored.csv"
+DATA_PRIMARY = "data/processed/orders_scored.csv"
+DATA_SAMPLE = "data/sample/orders_scored_sample.csv"
 
 
 @st.cache_data
 def load_data():
-    df = pd.read_csv(DATA_PATH)
-    return df
+    try:
+        return pd.read_csv(DATA_PRIMARY)
+    except FileNotFoundError:
+        return pd.read_csv(DATA_SAMPLE)
 
 
 def top_metrics(df):
@@ -32,17 +32,13 @@ def main():
 
     tabs = st.tabs(["Overview", "Supplier Ranking", "Anomaly Explorer", "Scenario Simulator", "Export"])
 
-    # Overview
     with tabs[0]:
         n_orders, n_suppliers, anomaly_rate, rule_rate = top_metrics(df)
         c1, c2, c3, c4 = st.columns(4)
         c1.metric("Orders", f"{n_orders:,}")
         c2.metric("Suppliers", f"{n_suppliers:,}")
         c3.metric("Model Anomaly Rate", f"{anomaly_rate*100:.2f}%")
-        if rule_rate is not None:
-            c4.metric("Rule Anomaly Rate", f"{rule_rate*100:.2f}%")
-        else:
-            c4.metric("Rule Anomaly Rate", "-")
+        c4.metric("Rule Anomaly Rate", f"{rule_rate*100:.2f}%" if rule_rate is not None else "-")
 
         kpis = compute_supplier_kpis(df)
         ranked = risk_score_supplier(kpis)
@@ -50,14 +46,12 @@ def main():
         st.subheader("Top Suppliers by Risk")
         st.dataframe(ranked[["supplier_id", "risk_score", "risk_rank"]].head(10), use_container_width=True)
 
-    # Supplier Ranking
     with tabs[1]:
         st.subheader("Supplier KPIs + Risk Score")
         kpis = compute_supplier_kpis(df)
         ranked = risk_score_supplier(kpis)
         st.dataframe(ranked, use_container_width=True)
 
-    # Anomaly Explorer
     with tabs[2]:
         st.subheader("Top Anomalies (Model)")
         cols = ["date","order_id","supplier_id","pharmacy_id","product_id","anomaly_score","anomaly_flag","reason_codes"]
@@ -81,7 +75,6 @@ def main():
             view2 = df[df["anomaly_flag_rule"] == 1].copy()
             st.dataframe(view2[cols2].head(300), use_container_width=True)
 
-    # Scenario Simulator
     with tabs[3]:
         st.subheader("Shock Scenario Simulator")
 
@@ -113,7 +106,6 @@ def main():
             st.write("Top changes (by risk_score_delta):")
             st.dataframe(delta.head(10), use_container_width=True)
 
-    # Export
     with tabs[4]:
         st.subheader("Export")
         kpis = compute_supplier_kpis(df)
@@ -125,7 +117,6 @@ def main():
             file_name="supplier_risk_rank.csv",
             mime="text/csv",
         )
-
         st.download_button(
             "Download orders_scored.csv",
             df.to_csv(index=False).encode("utf-8"),
@@ -136,4 +127,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

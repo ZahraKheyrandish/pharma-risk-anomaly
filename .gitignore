@@ -13,16 +13,45 @@ venv/
 __pycache__/
 *.pyc
 
-# Data / outputs (اگر نمی‌خوای داده‌ها برن روی گیت)
+# Data / outputs (if you don't want data on GitHub)
 data/raw/
 data/synth/
 data/processed/
+
+# Benchmark raw/csv + generated plots
 benchmarks/tabular/data/raw/
 benchmarks/tabular/data/csv/
 benchmarks/tabular/reports/pr_curves/
 benchmarks/tabular/reports/*.png
 
-# Reports (اگر گزارش‌ها رو جدا می‌خوای مدیریت کنی)
+# Reports (if you keep reports elsewhere)
 *.docx
-*.pdf
+*.pdf# env
+.venv/
+venv/
+.env
+# env
+.venv/
+venv/
+.env
+
+# OS
+.DS_Store
+
+# IDE
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+
+# Data / outputs (اگر نمی‌خوای داده‌ها برن روی گیت)
+data/raw/
+data/synth/
+data/processed/
+
+# Keep ONLY sample data in git (for demo/deploy)
+data/
+!data/sample/
+!data/sample/**
 
